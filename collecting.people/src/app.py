@@ -89,15 +89,23 @@ if response.status_code == 200:
             disability_count = "N/A"
         disability_info[disability_group_name] = disability_count
 
+    
+    gender_info_filtered = {age_group_name: gender_data for age_group_name, gender_data in gender_info.items() if not all(val == "N/A" for val in gender_data.values())}
+
+    employment_info_filtered = {employment_group_name: employment_count for employment_group_name, employment_count in employment_info.items() if employment_count != "N/A"}
+
+    disability_info_filtered = {disability_group_name: disability_count for disability_group_name, disability_count in disability_info.items() if disability_count != "N/A"}
+
+
     # Создаем словарь для сохранения всех данных
     data = {
         'Город': city_name,
         'Количество людей': population,
         'Место в рейтинге': rating_place,
-        'Численность населения по возрастным группам': age_gender_data,
-        'Гендерный состав населения': gender_info,
-        'Занятость населения, безработица и пенсионеры': employment_info,
-        'Инвалидность': disability_info
+        'Численность населения по возрастным группам': gender_info_filtered,
+        'Гендерный состав населения': gender_info_filtered,
+        'Занятость населения, безработица и пенсионеры': employment_info_filtered,
+        'Инвалидность': disability_info_filtered
     }
 
     # Сериализуем данные в JSON и сохраняем в файл
