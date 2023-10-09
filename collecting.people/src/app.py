@@ -17,16 +17,43 @@ if response.status_code == 200:
 
     rating_place = soup.find('p', class_='check_rating').text.strip()
 
-    age_groups = []
-    age_group_elements = soup.find_all('div', class_='table-line-type')
-    for age_group_element in age_group_elements:
-        age_group_name = age_group_element.find('div', class_='table-text').text.strip()
-        try:
-            age_group_count = age_group_element.find('div', class_='table-text2').find('span').text.strip()
-        except AttributeError:
-            age_group_count = "N/A" 
+    age_gender_data = []
 
-        age_groups.append((age_group_name, age_group_count))
+    age_group_elements = soup.find_all('div', class_='row table-line-type')
+    for age_group_element in age_group_elements:
+        age_group_name_element = age_group_element.find('div', class_='col-xl-3 table-text col-3')
+        if age_group_name_element:
+            age_group_name = age_group_name_element.text.strip()
+        else:
+            age_group_name = "N/A"
+
+        male_count_element = age_group_element.find('div', class_='col-xl-3 table-text col-4 text-right')
+        if male_count_element:
+            male_count_text = male_count_element.text.strip()
+            male_count = male_count_text.split('/')[0].strip()
+        else:
+            male_count = "N/A"
+
+        female_count_element = age_group_element.find_all('div', class_='col-xl-3 table-text col-4 text-right')
+        if len(female_count_element) > 1:
+            female_count_text = female_count_element[1].text.strip()
+            female_count = female_count_text.split('/')[0].strip()
+        else:
+            female_count = "N/A"
+
+        female_percentage_element = age_group_element.find('div', class_='col-xl-3 table-text ip_hide text-right')
+        if female_percentage_element:
+            female_percentage_text = female_percentage_element.text.strip()
+            female_percentage = female_percentage_text[:-1]
+        else:
+            female_percentage = "N/A"
+
+        age_gender_data.append({
+            'Возраст': age_group_name,
+            'Мужчины': male_count,
+            'Женщины': female_count,
+            'Процент женщин': female_percentage
+        })
 
     gender_info = {}
     gender_elements = soup.find_all('div', class_='row table-line-type')
@@ -67,7 +94,7 @@ if response.status_code == 200:
         'Город': city_name,
         'Количество людей': population,
         'Место в рейтинге': rating_place,
-        'Численность населения по возрастным группам': dict(age_groups),
+        'Численность населения по возрастным группам': age_gender_data,
         'Гендерный состав населения': gender_info,
         'Занятость населения, безработица и пенсионеры': employment_info,
         'Инвалидность': disability_info
